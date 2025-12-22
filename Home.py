@@ -1,6 +1,12 @@
 import streamlit as st
 import pandas as pd
-from utils import load_config, fetch_api_data, render_common_sidebar
+import sys
+import os
+
+# Server ko batana ki utils file isi folder mein hai
+sys.path.append(os.path.dirname(__file__))
+
+from utils import load_config, fetch_api_data, render_common_sidebar, dynamic_logic_filter
 
 st.set_page_config(page_title="Dashboard", layout="wide")
 render_common_sidebar()
