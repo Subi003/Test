@@ -8,23 +8,23 @@ import re
 
 # --- CONFIGURATION MANAGER ---
 def load_config():
-    """Config file load karne ke liye with Safe Merger logic"""
+    """Server-safe config loader (Fixes KeyError)"""
     default_config = {
         "portal_name": "",
         "master_auth_key": "",
         "urls": []
     }
-    if os.path.exists("config.json"):
+    if not os.path.exists("config.json"):
+        return default_config
+    try:
         with open("config.json", "r") as f:
-            try:
-                user_config = json.load(f)
-                # User ki saari saved keys (urls etc.) ko default mein merge karna
-                for key in user_config:
+            user_config = json.load(f)
+            for key in default_config:
+                if key in user_config:
                     default_config[key] = user_config[key]
-                return default_config
-            except:
-                return default_config
-    return default_config
+            return default_config
+    except:
+        return default_config
 
 
 def save_config(conf):
@@ -33,9 +33,9 @@ def save_config(conf):
         json.dump(conf, f, indent=4)
 
 
-# --- DYNAMIC FILTER ENGINE ---
+# --- CENTRAL DYNAMIC FILTER ENGINE ---
 def dynamic_logic_filter(query, df):
-    """AI Search logic for numbers and text"""
+    """Dynamic Search logic for Numeric and Text queries"""
     query = query.lower().strip()
     if not query: return df
 
@@ -48,8 +48,8 @@ def dynamic_logic_filter(query, df):
         if not target_col and num_cols: target_col = num_cols[0]
 
         ops = {
-            'gt': ['jyada', 'upar', 'above', 'more', 'high', '>', 'badha'],
-            'lt': ['kam', 'niche', 'below', 'less', 'low', '<', 'ghat'],
+            'gt': ['jyada', 'upar', 'above', 'more', 'high', '>', 'greater'],
+            'lt': ['kam', 'niche', 'below', 'less', 'low', '<', 'under'],
             'eq': ['barabar', 'equal', 'exact', '==', 'hai']
         }
         if target_col:
@@ -61,7 +61,7 @@ def dynamic_logic_filter(query, df):
     return df[mask]
 
 
-# --- API FETCHER ---
+# --- SECURE API FETCHER ---
 @st.cache_data(ttl=300, show_spinner=False)
 def fetch_api_data(api_item):
     config = load_config()
@@ -82,8 +82,9 @@ def fetch_api_data(api_item):
 
 
 def render_common_sidebar():
+    """Navigation UI"""
     config = load_config()
-    p_name = config.get("portal_name") or "AI Data Portal"
+    p_name = config.get("portal_name") or "Data Portal"
     with st.sidebar:
         st.title(f"🚀 {p_name}")
         st.divider()
