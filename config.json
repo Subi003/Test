@@ -1,0 +1,13 @@
+{
+    "portal_name": "TestForAPI",
+    "master_auth_key": "",
+    "urls": [
+        {
+            "label": "Sales",
+            "url": "https://fakestoreapi.com/products",
+            "method": "GET",
+            "auth_key": "",
+            "json_body": {}
+        }
+    ]
+}
